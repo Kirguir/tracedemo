@@ -1,0 +1,45 @@
+[package]
+name = "tracedemo"
+version = "0.1.0"
+authors = ["Kirguir <a.shutiy@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = "s"  # Tell `rustc` to optimize for small code size.
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+console_error_panic_hook = { version = "0.1", optional = true }
+derive_more = "0.15"
+failure = "0.1"
+failure_derive = "0.1"
+futures = "0.1"
+js-sys = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.3"
+[dependencies.web-sys]
+    version = "0.3"
+    features = [
+        "CloseEvent", "console", "Event", "EventTarget", "MediaDevices",
+        "MediaStream", "MediaStreamConstraints", "MediaStreamTrack",
+        "MessageEvent", "Navigator", "RtcConfiguration", "RtcIceCandidate",
+        "RtcIceServer", "RtcIceCandidateInit", "RtcPeerConnection",
+        "RtcPeerConnectionIceEvent", "RtcRtpReceiver", "RtcRtpSender",
+        "RtcRtpTransceiver", "RtcRtpTransceiverDirection",
+        "RtcRtpTransceiverInit", "RtcSdpType", "RtcSessionDescription",
+        "RtcSessionDescriptionInit", "RtcTrackEvent", "WebSocket",
+        "Window",
+    ]
+
+[dependencies.tracerr]
+    path = "crates/tracerr"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.2"
