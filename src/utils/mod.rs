@@ -12,4 +12,3 @@ pub fn window() -> Window {
     // Safe to unwrap.
     web_sys::window().unwrap()
 }
-

@@ -1,39 +1,43 @@
-use std::fmt::Display;
-
+use derive_more::Display;
+use failure::Fail;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
 
-pub trait WasmErr: Display {
-    fn name(&self) -> String;
+#[derive(Debug, Display)]
+#[display(fmt = "{}", _0)]
+pub struct JsErr(String);
 
-    fn js_error(&self) -> JsValue {
-        JsValue::null()
+impl From<JsValue> for JsErr {
+    fn from(val: JsValue) -> Self {
+        match val.dyn_into::<js_sys::Error>() {
+            Ok(err) => Self(err.to_string().into()),
+            Err(val) => Self(format!("{:?}", val)),
+        }
     }
 }
 
 #[wasm_bindgen]
 pub struct JasonErr {
-    error: Box<dyn WasmErr>, //    name: String,
-                             //    description: String,
-                             //    cause: Option<JsValue>,
-                             //    trace: String
+    error: Box<dyn Fail>,
 }
 
 #[wasm_bindgen]
 impl JasonErr {
-    pub fn name(&self) -> String {
-        self.error.name()
+    pub fn get_name(&self) -> String {
+        (*self.error).name().map_or("Error".to_string(), Into::into)
     }
 
     pub fn description(&self) -> String {
         self.error.to_string()
     }
 
-    pub fn cause(&self) -> JsValue {
+    pub fn cause(&self) -> String {
         //        match &self.cause {
         //            Some(val) => val.clone(),
         //            None() => &JsValue::null(),
         //        }
-        self.error.js_error()
+        let err = self.error.find_root_cause();
+        format!("{}: {}", err.name().unwrap_or("Error"), err)
     }
 
     pub fn backtrace(&self) -> String {
@@ -43,7 +47,7 @@ impl JasonErr {
 
 impl<T> From<T> for JasonErr
 where
-    T: WasmErr + 'static,
+    T: Fail + 'static,
 {
     fn from(err: T) -> Self {
         Self {
