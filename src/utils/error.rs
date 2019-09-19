@@ -32,12 +32,8 @@ impl JasonErr {
     }
 
     pub fn cause(&self) -> String {
-        //        match &self.cause {
-        //            Some(val) => val.clone(),
-        //            None() => &JsValue::null(),
-        //        }
         let err = self.error.find_root_cause();
-        format!("{}: {}", err.name().unwrap_or("Error"), err)
+        format!("{}", err.name().unwrap_or("Error"))
     }
 
     pub fn backtrace(&self) -> String {

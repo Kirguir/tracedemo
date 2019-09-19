@@ -21,6 +21,12 @@ pub enum ApiError {
     MediaManagerFailed(InitStreamError),
 }
 
+impl From<InitStreamError> for ApiError {
+    fn from(err: InitStreamError) -> Self {
+        ApiError::MediaManagerFailed(err)
+    }
+}
+
 impl Fail for ApiError {
     #[inline]
     fn name(&self) -> Option<&str> {
@@ -78,14 +84,14 @@ pub struct RoomHandle(Weak<RefCell<InnerRoom>>);
 impl RoomHandle {
     pub fn join(&self) -> Promise {
         let fut = match self.0.upgrade() {
-            None => Either::A(future::err(ApiError::RoomClosed)),
+            None => Either::A(future::err(tracerr::new!(ApiError::RoomClosed))),
             Some(inner) => {
                 let room = Rc::clone(&inner);
                 let fut = inner
                     .borrow()
                     .media_manager
                     .get_stream()
-                    .map_err(|err| ApiError::MediaManagerFailed(err))
+                    .map_err(tracerr::map_from_and_wrap!())
                     .and_then(move |stream| {
                         room.borrow_mut().stream.replace(stream);
                         Ok(())

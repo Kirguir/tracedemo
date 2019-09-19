@@ -27,8 +27,8 @@ fn init_local_stream() -> impl Future<Item = (), Error = JsValue> {
                 Ok(_) => assert!(false, "should not be success"),
                 Err(e) => {
                     assert_eq!(get_error_name(&e), "MEDIA_STREAM_FAILED");
-                    assert_eq!(get_error_desc(&e), "Failed gets stream: NotFoundError: Requested device not found");
-                    assert_eq!(get_error_cause(&e), "MEDIA_STREAM_FAILED: Failed gets stream: NotFoundError: Requested device not found");
+                    assert_eq!(get_error_desc(&e), "Failed gets stream: NotFoundError: Requested device not found\nerror trace:\ntracedemo::media::manager\n  at src\\media\\manager.rs:41");
+                    assert_eq!(get_error_cause(&e), "MEDIA_STREAM_FAILED");
                 }
             };
             Ok(())

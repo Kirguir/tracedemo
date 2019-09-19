@@ -31,8 +31,8 @@ fn join_room() -> impl Future<Item = (), Error = JsValue> {
                 Ok(_) => assert!(false, "cannot be success"),
                 Err(e) => {
                     assert_eq!(get_error_name(&e), "MEDIA_MANAGER_FAILED");
-                    assert_eq!(get_error_desc(&e), "Media manager failed: Failed gets stream: NotFoundError: Requested device not found");
-                    assert_eq!(get_error_cause(&e), "MEDIA_STREAM_FAILED: Failed gets stream: NotFoundError: Requested device not found");
+                    assert_eq!(get_error_desc(&e), "Media manager failed: Failed gets stream: NotFoundError: Requested device not found\nerror trace:\ntracedemo::media::manager\n  at src\\media\\manager.rs:41\ntracedemo::media::manager\n  at src\\media\\manager.rs:61\ntracedemo::api::room\n  at src\\api\\room.rs:94");
+                    assert_eq!(get_error_cause(&e), "MEDIA_STREAM_FAILED");
                 }
             };
             Ok(())

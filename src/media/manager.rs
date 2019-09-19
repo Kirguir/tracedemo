@@ -12,6 +12,7 @@ use wasm_bindgen_futures::{future_to_promise, JsFuture};
 
 use crate::utils::error::{JasonErr, JsErr};
 use crate::utils::window;
+use tracerr::Traced;
 
 #[derive(Default)]
 struct InnerMediaManager {}
@@ -20,20 +21,24 @@ impl InnerMediaManager {
     fn get_local_stream(
         &self,
         constraints: web_sys::MediaStreamConstraints,
-    ) -> impl Future<Item = web_sys::MediaStream, Error = InitStreamError> {
+    ) -> impl Future<Item = web_sys::MediaStream, Error = Traced<InitStreamError>> {
         use InitStreamError::*;
         window()
             .navigator()
             .media_devices()
             .map_err(|err| MediaDevicesFailed(err.into()))
+            .map_err(tracerr::wrap!())
             .into_future()
             .and_then(move |devices| {
                 devices
                     .get_user_media_with_constraints(&constraints)
                     .map_err(|err| UserMediaFailed(err.into()))
+                    .map_err(tracerr::wrap!())
             })
             .and_then(|promise: js_sys::Promise| {
-                JsFuture::from(promise).map_err(|err| MediaStreamFailed(err.into()))
+                JsFuture::from(promise)
+                    .map_err(|err| MediaStreamFailed(err.into()))
+                    .map_err(tracerr::wrap!())
             })
             .map(web_sys::MediaStream::from)
     }
@@ -44,11 +49,16 @@ impl InnerMediaManager {
 pub struct MediaManager(Rc<RefCell<InnerMediaManager>>);
 
 impl MediaManager {
-    pub fn get_stream(&self) -> impl Future<Item = web_sys::MediaStream, Error = InitStreamError> {
+    pub fn get_stream(
+        &self,
+    ) -> impl Future<Item = web_sys::MediaStream, Error = Traced<InitStreamError>> {
         let mut constraints = web_sys::MediaStreamConstraints::new();
         constraints.audio(&JsValue::from_bool(true));
         constraints.video(&JsValue::from_bool(true));
-        self.0.borrow().get_local_stream(constraints)
+        self.0
+            .borrow()
+            .get_local_stream(constraints)
+            .map_err(tracerr::wrap!())
     }
 
     /// Instantiates new [`MediaManagerHandle`] for use on JS side.
@@ -94,6 +104,7 @@ impl MediaManagerHandle {
             .0
             .upgrade()
             .ok_or_else(|| InitStreamError::DetachedState)
+            .map_err(tracerr::wrap!())
             .into_future()
             .and_then(move |inner| inner.borrow().get_local_stream(constraints))
             .map(Into::into)
