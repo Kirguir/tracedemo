@@ -49,6 +49,12 @@ impl InnerMediaManager {
 pub struct MediaManager(Rc<RefCell<InnerMediaManager>>);
 
 impl MediaManager {
+    pub fn new() -> Self {
+        Self (Rc::new(RefCell::new(Default::default())))
+    }
+}
+
+impl MediaManager {
     pub fn get_stream(
         &self,
     ) -> impl Future<Item = web_sys::MediaStream, Error = Traced<InitStreamError>> {

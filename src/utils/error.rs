@@ -2,6 +2,7 @@ use derive_more::Display;
 use failure::Fail;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use tracerr::{Traced, Trace};
 
 #[derive(Debug, Display)]
 #[display(fmt = "{}", _0)]
@@ -19,11 +20,12 @@ impl From<JsValue> for JsErr {
 #[wasm_bindgen]
 pub struct JasonErr {
     error: Box<dyn Fail>,
+    trace: Trace,
 }
 
 #[wasm_bindgen]
 impl JasonErr {
-    pub fn get_name(&self) -> String {
+    pub fn name(&self) -> String {
         (*self.error).name().map_or("Error".to_string(), Into::into)
     }
 
@@ -37,17 +39,19 @@ impl JasonErr {
     }
 
     pub fn backtrace(&self) -> String {
-        unimplemented!()
+        self.trace.to_string()
     }
 }
 
-impl<T> From<T> for JasonErr
+impl<T> From<Traced<T>> for JasonErr
 where
     T: Fail + 'static,
 {
-    fn from(err: T) -> Self {
+    fn from(err: Traced<T>) -> Self {
+        let (err,trace) = err.unwrap();
         Self {
             error: Box::new(err),
+            trace
         }
     }
 }

@@ -82,9 +82,9 @@ pub struct RoomHandle(Weak<RefCell<InnerRoom>>);
 
 #[wasm_bindgen]
 impl RoomHandle {
-    pub fn join(&self) -> Promise {
+    pub fn join(&self) -> Promise { // Promise<Null, JasonErr>
         let fut = match self.0.upgrade() {
-            None => Either::A(future::err(tracerr::new!(ApiError::RoomClosed))),
+            None => Either::A(future::err(tracerr::new!(ApiError::RoomClosed))), // Traced<ApiError::RoomClosed>
             Some(inner) => {
                 let room = Rc::clone(&inner);
                 let fut = inner
@@ -100,7 +100,7 @@ impl RoomHandle {
             }
         }
         .map(|_| JsValue::NULL)
-        .map_err(|err| JasonErr::from(err).into());
+        .map_err(|err| JasonErr::from(err).into()); // JasonErr::from(Traced<ApiError::RoomClosed>)
         future_to_promise(fut)
     }
 }
