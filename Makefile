@@ -77,9 +77,29 @@ cargo.lint:
 
 
 
+#################
+# Yarn commands #
+#################
+
+# Resolve NPM project dependencies with Yarn.
+#
+# Optional 'cmd' parameter may be used for handy usage of docker-wrapped Yarn,
+# for example: make yarn cmd='upgrade'
+#
+# Usage:
+#	make yarn [cmd=('install --pure-lockfile'|<yarn-cmd>)]
+
+yarn-cmd = $(if $(call eq,$(cmd),),install --pure-lockfile,$(cmd))
+
+yarn:
+	yarn --cwd=demo $(yarn-cmd)
+
+
+
+
 ##################
 # .PHONY section #
 ##################
 
 .PHONY: cargo cargo.fmt cargo.lint \
-        up
+        up yarn
