@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "webpack -p",
-    "serve": "webpack-dev-server -p"
+    "start": "webpack-dev-server -d --open --port 8081"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "1.0.1",

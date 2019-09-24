@@ -31,8 +31,15 @@ fmt: cargo.fmt
 
 lint: cargo.lint
 
-test:
-	@make test.unit
+
+
+
+####################
+# Running commands #
+####################
+
+up:
+	npm run start --prefix=demo
 
 
 
@@ -70,28 +77,9 @@ cargo.lint:
 
 
 
-####################
-# Testing commands #
-####################
-
-# Run Rust unit tests of project.
-#
-# Usage:
-#	make test.unit
-
-CHROMEDRIVER_CLIENT_ARGS := $(strip \
-	$(shell grep 'CHROMEDRIVER_CLIENT_ARGS=' .env | cut -d '=' -f2))
-
-test.unit:
-	CHROMEDRIVER_CLIENT_ARGS="$(CHROMEDRIVER_CLIENT_ARGS)" \
-	cargo test --target wasm32-unknown-unknown
-
-
-
-
 ##################
 # .PHONY section #
 ##################
 
 .PHONY: cargo cargo.fmt cargo.lint \
-        test test.unit
+        up
