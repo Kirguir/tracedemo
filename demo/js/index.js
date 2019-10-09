@@ -1,22 +1,12 @@
-import {MyError} from "../../src/error";
-
 const rust = import('../../pkg');
 rust
-  .then(rust => {
-    let foo = new rust.Foo();
+    .then(rust => {
+        let jason_err = rust.jason_err();
+        console.log(jason_err instanceof Error);
+        console.log(jason_err instanceof rust.JasonError);
 
-    try {
-      foo.run()
-    } catch (err) {
-      if (err instanceof MyError) {
-        console.log("name:" + err.name());
-        console.log("description:" + err.message());
-      } else if (err instanceof Error) {
-        console.log("Standart error");
-      } else {
-        console.log("Unknown error");
-      }
-    }
-    console.log("End");
-    foo.dispose();
-  });
+        let detached_err = rust.detached_err();
+        console.log(detached_err instanceof Error);
+        console.log(detached_err instanceof rust.JasonError);
+        console.log(detached_err instanceof rust.DetachedStateError);
+    });

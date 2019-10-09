@@ -14,6 +14,11 @@ opt-level = "s"  # Tell `rustc` to optimize for small code size.
 [dependencies]
 js-sys = "0.3"
 wasm-bindgen = "0.2"
+[dependencies.web-sys]
+    version = "0.3"
+    features = [
+        "MediaStream", "MediaStreamConstraints", "Window"
+    ]
 
 [package.metadata.wasm-pack.profile.dev]
 wasm-opt = false
